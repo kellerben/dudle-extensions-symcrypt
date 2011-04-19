@@ -19,8 +19,41 @@
 
 "use strict";
 
-Symcrypt.askForPasswd = function (message) {
-	alert("FIXME: implement me! \n" + message);
+Symcrypt.tryPasswd = function () {
+	Symcrypt.password = $("#symcryptpasswd")[0].value;
+	Poll.exchangeAddParticipantRow();
+	Symcrypt.decryptDB();
+}
+
+Symcrypt.enterPasswd = function () {
+	var innerTr = "<td colspan='2'>";
+	innerTr += _("Please enter the password")
+	innerTr += "</td><td colspan='"; 
+	innerTr += Poll.columns.length;
+	innerTr += "'><input type='password' id='symcryptpasswd' />"
+	innerTr += "</td><td><input type='button' onclick='Symcrypt.tryPasswd()' value='";
+	innerTr += _("Save");
+	innerTr += "' />";
+	innerTr += "</td>";
+	Poll.exchangeAddParticipantRow(innerTr);
+};
+
+Symcrypt.disable = function () {
+	Poll.exchangeAddParticipantRow();
+};
+
+
+Symcrypt.askForPasswd = function (message, buttontext) {
+	var innerTr = "<td colspan='2'></td><td colspan='";
+	innerTr += Poll.columns.length;
+	innerTr += "'>"
+	innerTr += message;
+	innerTr += "<div><input type='button' onclick='Symcrypt.enterPasswd()' value='";
+	innerTr += buttontext;
+	innerTr += "' /> <input type='button' onclick='Symcrypt.disable()' value='";
+	innerTr += _("Continue without password (my vote is not password-protected)");
+	innerTr += "' /></div></td>";
+	Poll.exchangeAddParticipantRow(innerTr);
 };
 
 Symcrypt.decryptDB = function () {
@@ -28,7 +61,7 @@ Symcrypt.decryptDB = function () {
 		Symcrypt.pollPW = sjcl.decrypt(Symcrypt.password, Symcrypt.encryptedPollPW);
 	} catch (e) {
 		if (e.toString() === "CORRUPT: ccm: tag doesn't match") {
-			Symcrypt.askForPasswd(_("The password was wrong!"));
+			Symcrypt.askForPasswd(_("The password you entered was wrong!"),_("Try again"));
 			return;
 		} else {
 			throw e;
@@ -100,7 +133,7 @@ $(document).ready(function () {
 				Symcrypt.password = localStorage["Symcrypt_" + Poll.ID + "_passwd"];
 			}
 			if (!Symcrypt.password) {
-				Symcrypt.askForPasswd();
+				Symcrypt.askForPasswd(_("Parts of this poll are encrypted. You have to provide the password to see password-protected parts and to protect your vote by the password."),_("Enter password"));
 				return false;
 			}
 			Symcrypt.decryptDB();
