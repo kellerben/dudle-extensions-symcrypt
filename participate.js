@@ -19,9 +19,13 @@
 
 "use strict";
 
-Symcrypt.tryPasswd = function () {
+Symcrypt.tryPasswd = function (e) {
+	e.preventDefault();
 	Symcrypt.password = $("#symcryptpasswd")[0].value;
 	Poll.exchangeAddParticipantRow();
+	$("#polltable form").unbind("submit");
+	$("#polltable form").bind("submit", Symcrypt.handleUserInput);
+	console.log("foo");
 	Symcrypt.decryptDB();
 }
 
@@ -31,11 +35,13 @@ Symcrypt.enterPasswd = function () {
 	innerTr += "</td><td colspan='"; 
 	innerTr += Poll.columns.length;
 	innerTr += "'><input type='password' id='symcryptpasswd' />"
-	innerTr += "</td><td><input type='button' onclick='Symcrypt.tryPasswd()' value='";
+	innerTr += "</td><td><input type='submit' value='";
 	innerTr += _("Save");
 	innerTr += "' />";
 	innerTr += "</td>";
 	Poll.exchangeAddParticipantRow(innerTr);
+	$("#polltable form").unbind("submit");
+	$("#polltable form").bind("submit", Symcrypt.tryPasswd);
 };
 
 Symcrypt.disable = function () {
@@ -120,6 +126,18 @@ Symcrypt.storePoll = function () {
 	Poll.store("Symcrypt", Symcrypt.pollPW, sjcl.encrypt(Symcrypt.password, JSON.stringify(Symcrypt.db)));
 };
 
+Symcrypt.handleUserInput = function (e) {
+	var user_input = Symcrypt.parseParticipantInputArray($(this).serializeArray());
+	e.preventDefault();
+	if (user_input.name.length !== 0) {
+		user_input.name = escapeHtml(user_input.name);
+
+		Symcrypt.db[user_input.name] = user_input;
+
+		Symcrypt.addRow(user_input);
+		this.reset();
+	}
+};
 
 $(document).ready(function () {
 	Symcrypt.getDB({
@@ -138,20 +156,8 @@ $(document).ready(function () {
 			}
 			Symcrypt.decryptDB();
 
-			$("#polltable form").live("submit", function (e) {
-				var user_input = Symcrypt.parseParticipantInputArray($(this).serializeArray());
-				if (user_input.name.length === 0) {
-					return false;
-				}
-
-				user_input.name = escapeHtml(user_input.name);
-
-				Symcrypt.db[user_input.name] = user_input;
-
-				Symcrypt.addRow(user_input);
-				this.reset();
-				return false;
-			});
+			$("#polltable form").unbind("submit");
+			$("#polltable form").bind("submit", Symcrypt.handleUserInput);
 		}
 	});
 });
