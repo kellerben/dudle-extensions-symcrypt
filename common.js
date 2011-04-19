@@ -17,8 +17,10 @@
  * along with dudle.  If not, see <http://www.gnu.org/licenses/>.           *
  ***************************************************************************/
 
+"use strict";
+
 // Register Namespace
-if (typeof(Symcrypt) == "undefined") {
+if (typeof(Symcrypt) === "undefined") {
 	var Symcrypt = {};
 } else {
 	alert("Somebody captured the Namespace Symcrypt!!!");
@@ -27,7 +29,7 @@ if (typeof(Symcrypt) == "undefined") {
 
 sjcl.random.startCollectors();
 
-Symcrypt.getDB = function() {
+Symcrypt.getDB = function () {
 	var options = arguments[0] || {};
 	Poll.load("Symcrypt", "init", options);
 };

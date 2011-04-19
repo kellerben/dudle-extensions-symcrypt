@@ -17,7 +17,9 @@
  * along with dudle.  If not, see <http://www.gnu.org/licenses/>.           *
  ***************************************************************************/
 
-$(document).ready(function(){
+"use strict";
+
+$(document).ready(function () {
 	var pwd = localStorage["Symcrypt_" + Poll.ID + "_passwd"];
 	if (pwd) {
 		$("#humanReadableURL").append("#passwd=" + pwd);

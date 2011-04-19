@@ -17,40 +17,42 @@
  * along with dudle.  If not, see <http://www.gnu.org/licenses/>.           *
  ***************************************************************************/
 
-Symcrypt.AcAlreadyInitialized = function() {
+"use strict";
+
+Symcrypt.AcAlreadyInitialized = function () {
 	$("#ac_admin input[type=submit]").remove();
 	$("#ac_participant input[type=submit]").remove();
-	var pw = "aaaaaaaaaaaaaa".replace(/a/g,Symcrypt.passwordStar);
+	var pw = "aaaaaaaaaaaaaa".replace(/a/g, Symcrypt.passwordStar);
 	$("#password0").replaceWith(pw);
 	$("#password1").replaceWith(pw);
 };
 
-Symcrypt.AcNotInitialized = function() {
-	$("#ac_participant").submit(function() {
+Symcrypt.AcNotInitialized = function () {
+	$("#ac_participant").submit(function () {
 		$("#participanthint .error").remove();
-		if ($("#password0")[0].value == "") {
+		if ($("#password0")[0].value === "") {
 			$("#participanthint").append("<div class='error'>" + _("Password must not be empty.") + "</div>");
 			return false;
 		}
-		if ($("#password0")[0].value != $("#password1")[0].value) {
+		if ($("#password0")[0].value !== $("#password1")[0].value) {
 			$("#participanthint").append("<div class='error'>" + _("Passwords did not match.") + "</div>");
 			return false;
 		}
 
 		// create new DB
-		var password = $("#password0")[0].value;
+		var rand, password = $("#password0")[0].value;
 		localStorage["Symcrypt_" + Poll.ID + "_passwd"] = password;
 		if (sjcl.random.isReady()) {
-			var rand = sjcl.random.randomWords(3);
+			rand = sjcl.random.randomWords(3);
 		}	else {
-			var rand = [];
-			rand[0] = Math.random()*9999999;
-			rand[1] = Math.random()*9999999;
-			rand[2] = Math.random()*9999999;
+			rand = [];
+			rand[0] = Math.random() * 9999999;
+			rand[1] = Math.random() * 9999999;
+			rand[2] = Math.random() * 9999999;
 		}
 		Poll.store("Symcrypt",
 			"init",
-			sjcl.encrypt(password,sjcl.codec.base64.fromBits(rand)),
+			sjcl.encrypt(password, sjcl.codec.base64.fromBits(rand)),
 			{	write_passwd_new: rand.join("")}
 		);
 
@@ -59,8 +61,8 @@ Symcrypt.AcNotInitialized = function() {
 	});
 };
 
-$(document).ready(function() {
-	if ($("#ac_participant").length == 1) {
+$(document).ready(function () {
+	if ($("#ac_participant").length === 1) {
 		Symcrypt.getDB({
 			success: Symcrypt.AcAlreadyInitialized,
 			failure: Symcrypt.AcNotInitialized
