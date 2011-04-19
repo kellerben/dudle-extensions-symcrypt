@@ -25,16 +25,15 @@ Symcrypt.tryPasswd = function (e) {
 	Poll.exchangeAddParticipantRow();
 	$("#polltable form").unbind("submit");
 	$("#polltable form").bind("submit", Symcrypt.handleUserInput);
-	console.log("foo");
 	Symcrypt.decryptDB();
-}
+};
 
 Symcrypt.enterPasswd = function () {
 	var innerTr = "<td colspan='2'>";
-	innerTr += _("Please enter the password")
+	innerTr += _("Please enter the password");
 	innerTr += "</td><td colspan='"; 
 	innerTr += Poll.columns.length;
-	innerTr += "'><input type='password' id='symcryptpasswd' />"
+	innerTr += "'><input type='password' id='symcryptpasswd' />";
 	innerTr += "</td><td><input type='submit' value='";
 	innerTr += _("Save");
 	innerTr += "' />";
@@ -46,13 +45,14 @@ Symcrypt.enterPasswd = function () {
 
 Symcrypt.disable = function () {
 	Poll.exchangeAddParticipantRow();
+	$("#polltable form").unbind("submit");
 };
 
 
 Symcrypt.askForPasswd = function (message, buttontext) {
 	var innerTr = "<td colspan='2'></td><td colspan='";
 	innerTr += Poll.columns.length;
-	innerTr += "'>"
+	innerTr += "'>";
 	innerTr += message;
 	innerTr += "<div><input type='button' onclick='Symcrypt.enterPasswd()' value='";
 	innerTr += buttontext;
@@ -67,7 +67,7 @@ Symcrypt.decryptDB = function () {
 		Symcrypt.pollPW = sjcl.decrypt(Symcrypt.password, Symcrypt.encryptedPollPW);
 	} catch (e) {
 		if (e.toString() === "CORRUPT: ccm: tag doesn't match") {
-			Symcrypt.askForPasswd(_("The password you entered was wrong!"),_("Try again"));
+			Symcrypt.askForPasswd(_("The password you entered was wrong!"), _("Try again"));
 			return;
 		} else {
 			throw e;
@@ -78,6 +78,7 @@ Symcrypt.decryptDB = function () {
 			success: function (resp) {
 				Symcrypt.db = JSON.parse(sjcl.decrypt(Symcrypt.password, resp));
 				$.each(Symcrypt.db, function (index, user) {
+					user.name = user.name.replace(/'/, "").replace(/"/, "");
 					Symcrypt.addRow(user);
 				});
 			},
@@ -90,6 +91,7 @@ Symcrypt.decryptDB = function () {
 
 Symcrypt.parseParticipantInputArray = function (arr) {
 	var ret = {};
+	ret.oldname = arr[0].value;
 	ret.name = arr[1].value;
 	$.each(arr, function (i, e) {
 		var col = e.name.match(/^add_participant_checked_(.*)$/);
@@ -107,19 +109,15 @@ Symcrypt.addRow = function (user) {
 
 	var htmlrow = new cloneObject(user);
 	htmlrow.name = "<span class='username'>" + user.name + "</span><span class='symcryptEncrypted'></span>";
-	htmlrow.editUser = "Symcrypt.editUser";
+	htmlrow.editUser = "Poll.editUser";
 	htmlrow.deleteUser = "Symcrypt.deleteUser";
 	Poll.parseNaddRow(user.name, htmlrow);
 };
 
 Symcrypt.deleteUser = function (user) {
-	delete Symcrypt.db[user];
+	delete Symcrypt.db[escapeHtml(user)];
 	Symcrypt.storePoll();
 	Poll.rmRow(user);
-};
-
-Symcrypt.editUser = function (user) {
-	alert("implement me!");
 };
 
 Symcrypt.storePoll = function () {
@@ -127,9 +125,20 @@ Symcrypt.storePoll = function () {
 };
 
 Symcrypt.handleUserInput = function (e) {
-	var user_input = Symcrypt.parseParticipantInputArray($(this).serializeArray());
 	e.preventDefault();
+
+	var user_input = Symcrypt.parseParticipantInputArray($(this).serializeArray());
 	if (user_input.name.length !== 0) {
+		if (user_input.name.match(/"/) || user_input.name.match(/'/)) {
+			Poll.error(_("The username must not contain the characters ' and \"!"));
+			return;
+		}
+
+		if (user_input.oldname !== "") {
+			Poll.cancelEdit();
+			Symcrypt.deleteUser(user_input.oldname);
+		}
+
 		user_input.name = escapeHtml(user_input.name);
 
 		Symcrypt.db[user_input.name] = user_input;
@@ -153,7 +162,7 @@ $(document).ready(function () {
 				Symcrypt.password = localStorage["Symcrypt_" + Poll.ID + "_passwd"];
 			}
 			if (!Symcrypt.password) {
-				Symcrypt.askForPasswd(_("Parts of this poll are encrypted. You have to provide the password to see password-protected parts and to protect your vote by the password."),_("Enter password"));
+				Symcrypt.askForPasswd(_("Parts of this poll are encrypted. You have to provide the password to see password-protected parts and to protect your vote by the password."), _("Enter password"));
 				return false;
 			}
 			Symcrypt.decryptDB();
