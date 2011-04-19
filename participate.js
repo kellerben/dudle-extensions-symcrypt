@@ -21,9 +21,9 @@ Symcrypt.askForPasswd = function(message){
 	alert("FIXME: implement me! \n" + message);
 };
 
-Symcrypt.decryptDB = function(password) {
+Symcrypt.decryptDB = function() {
 	try {
-	Symcrypt.pollPW = sjcl.decrypt(password,Symcrypt.encryptedPollPW);
+	Symcrypt.pollPW = sjcl.decrypt(Symcrypt.password,Symcrypt.encryptedPollPW);
 	} catch (e) {
 		if (e.toString() === "CORRUPT: ccm: tag doesn't match") {
 			Symcrypt.askForPasswd(_("The password was wrong!"));
@@ -35,7 +35,7 @@ Symcrypt.decryptDB = function(password) {
 	Poll.load("Symcrypt", Symcrypt.pollPW, 
 		{ 
 			success: function(resp) {
-				Symcrypt.db = JSON.parse(sjcl.decrypt(password,resp));
+				Symcrypt.db = JSON.parse(sjcl.decrypt(Symcrypt.password,resp));
 				$.each(Symcrypt.db, function(index, user) {
 					Symcrypt.addRow(user);
 				});
@@ -69,26 +69,39 @@ Symcrypt.addRow = function(user) {
 	htmlrow.editUser = "Symcrypt.editUser";
 	htmlrow.deleteUser = "Symcrypt.deleteUser";
 	Poll.parseNaddRow(user.name,htmlrow);
-	console.log(htmlrow);
-	console.log(user);
 }
+
+Symcrypt.deleteUser = function(user) {
+	delete Symcrypt.db[user];
+	Symcrypt.storePoll();
+	Poll.rmRow(user);
+};
+
+Symcrypt.editUser = function(user) {
+	alert("implement me!");
+};
+
+Symcrypt.storePoll = function() {
+	Poll.store("Symcrypt", Symcrypt.pollPW, sjcl.encrypt(Symcrypt.password,JSON.stringify(Symcrypt.db)));
+}
+
 
 $(document).ready(function() {
 	Symcrypt.getDB({
 		success: function(enc) {
 			Symcrypt.encryptedPollPW = enc;
 
-			var password = location.href.match(/#.*passwd=([^\?]*)/);
-			if (password) {
-				password = password[1];
+			Symcrypt.password = location.href.match(/#.*passwd=([^\?]*)/);
+			if (Symcrypt.password) {
+				Symcrypt.password = Symcrypt.password[1];
 			} else {
-				password = localStorage["Symcrypt_" + Poll.ID + "_passwd"];
+				Symcrypt.password = localStorage["Symcrypt_" + Poll.ID + "_passwd"];
 			}
-			if (!password) {
+			if (!Symcrypt.password) {
 				Symcrypt.askForPasswd();
 				return false;
 			}
-			Symcrypt.decryptDB(password);
+			Symcrypt.decryptDB();
 
 			$("#polltable form").live("submit", function(e) {
 				try{
@@ -98,7 +111,6 @@ $(document).ready(function() {
 				user_input.name = escapeHtml(user_input.name);
 
 				Symcrypt.db[user_input.name] = user_input;
-				Poll.store("Symcrypt", Symcrypt.pollPW, sjcl.encrypt(password,JSON.stringify(Symcrypt.db)));
 
 				Symcrypt.addRow(user_input);
 				this.reset();
