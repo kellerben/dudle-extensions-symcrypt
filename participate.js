@@ -134,6 +134,8 @@ Symcrypt.handleUserInput = function (e) {
 
 		Symcrypt.db[user_input.name] = user_input;
 
+		Symcrypt.storePoll();
+
 		Symcrypt.addRow(user_input);
 		this.reset();
 	}
