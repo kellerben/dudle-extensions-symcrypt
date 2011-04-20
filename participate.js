@@ -26,6 +26,7 @@ Symcrypt.tryPasswd = function (e) {
 	$("#polltable form").unbind("submit");
 	$("#polltable form").bind("submit", Symcrypt.handleUserInput);
 	Symcrypt.decryptDB();
+	return false;
 };
 
 Symcrypt.enterPasswd = function () {
@@ -49,9 +50,11 @@ Symcrypt.disable = function () {
 };
 
 
+Symcrypt.storePasswdLocally = true;
+
 Symcrypt.askForPasswd = function (message, buttontext) {
-	var innerTr = "<td colspan='2'></td><td colspan='";
-	innerTr += Poll.columns.length;
+	var innerTr = "<td colspan='";
+	innerTr += Poll.columns.length + 3;
 	innerTr += "'>";
 	innerTr += message;
 	innerTr += "<div><input type='button' onclick='Symcrypt.enterPasswd()' value='";
@@ -60,6 +63,7 @@ Symcrypt.askForPasswd = function (message, buttontext) {
 	innerTr += _("Continue without password (my vote is not password-protected)");
 	innerTr += "' /></div></td>";
 	Poll.exchangeAddParticipantRow(innerTr);
+	Symcrypt.storePasswdLocally = false;
 };
 
 Symcrypt.removePrefilledUser = function () {
@@ -74,6 +78,14 @@ Symcrypt.removePrefilledUser = function () {
 Symcrypt.decryptDB = function () {
 	try {
 		Symcrypt.pollPW = sjcl.decrypt(Symcrypt.password, Symcrypt.encryptedPollPW);
+
+		if (Symcrypt.storePasswdLocally) {
+			localStorage["Symcrypt_" + Poll.ID + "_passwd"] = Symcrypt.password;
+			var pw = location.href.match(/#.*passwd=([^\?]*)/);
+			if (!pw || pw[1] !== Symcrypt.password) {
+				location.href = location.href + "#passwd=" + Symcrypt.password;
+			}
+		}
 	} catch (e) {
 		if (e.toString() === "CORRUPT: ccm: tag doesn't match") {
 			Symcrypt.askForPasswd(_("The password you entered was wrong!"), _("Try again"));
@@ -86,7 +98,6 @@ Symcrypt.decryptDB = function () {
 		{ 
 			success: function (resp) {
 				Symcrypt.db = JSON.parse(sjcl.decrypt(Symcrypt.password, resp));
-
 				Symcrypt.removePrefilledUser();
 
 				$.each(Symcrypt.db, function (index, user) {
@@ -145,7 +156,7 @@ Symcrypt.handleUserInput = function (e) {
 	if (user_input.name.length !== 0) {
 		if (user_input.name.match(/"/) || user_input.name.match(/'/)) {
 			Poll.error(_("The username must not contain the characters ' and \"!"));
-			return;
+			return false;
 		}
 
 		if (user_input.oldname !== "" && Symcrypt.db[user_input.oldname]) {
@@ -163,6 +174,7 @@ Symcrypt.handleUserInput = function (e) {
 		this.reset();
 		Symcrypt.removePrefilledUser();
 	}
+	return false;
 };
 
 $(document).ready(function () {
