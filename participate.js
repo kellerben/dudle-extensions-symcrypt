@@ -29,12 +29,17 @@ Symcrypt.tryPasswd = function (e) {
 	return false;
 };
 
+Symcrypt.storePasswdLocally = true;
+
 Symcrypt.enterPasswd = function () {
 	var innerTr = "<td colspan='2'>";
 	innerTr += _("Please enter the password");
 	innerTr += "</td><td colspan='"; 
 	innerTr += Poll.columns.length;
 	innerTr += "'><input type='password' id='symcryptpasswd' />";
+	innerTr += "<br /><input type='checkbox' id='rememberMe' onclick='Symcrypt.storePasswdLocally = !Symcrypt.storePasswdLocally' checked='checked' />&nbsp;<label for='rememberMe'>";
+	innerTr += _("remember password");
+	innerTr += "</label>";
 	innerTr += "</td><td><input type='submit' value='";
 	innerTr += _("Save");
 	innerTr += "' />";
@@ -50,7 +55,6 @@ Symcrypt.disable = function () {
 };
 
 
-Symcrypt.storePasswdLocally = true;
 
 Symcrypt.askForPasswd = function (message, buttontext) {
 	var innerTr = "<td colspan='";
@@ -63,7 +67,6 @@ Symcrypt.askForPasswd = function (message, buttontext) {
 	innerTr += _("Continue without password (my vote is not password-protected)");
 	innerTr += "' /></div></td>";
 	Poll.exchangeAddParticipantRow(innerTr);
-	Symcrypt.storePasswdLocally = false;
 };
 
 Symcrypt.removePrefilledUser = function () {
@@ -72,6 +75,15 @@ Symcrypt.removePrefilledUser = function () {
 		$("#polltable form input[name='olduser']")[0].value = "";
 		$("#add_participant_input")[0].value = "";
 	}
+};
+
+Symcrypt.showLogout = function () {
+	$("#tablist").after("<li id='logoutTab' class='nonactive_tab'><a href='javascript:Symcrypt.logout();'>&nbsp;" + _("Logout") + "&nbsp;</a></li>");
+};
+Symcrypt.logout = function () {
+	localStorage.clear();
+	alert(_("Do not forget to clean your browser history!"));
+	location.href = location.href.replace(/#.*/, "");
 };
 
 
@@ -85,6 +97,8 @@ Symcrypt.decryptDB = function () {
 			if (!pw || pw[1] !== Symcrypt.password) {
 				location.href = location.href + "#passwd=" + Symcrypt.password;
 			}
+
+			Symcrypt.showLogout();
 		}
 	} catch (e) {
 		if (e.toString() === "CORRUPT: ccm: tag doesn't match") {
@@ -176,6 +190,7 @@ Symcrypt.handleUserInput = function (e) {
 	}
 	return false;
 };
+
 
 $(document).ready(function () {
 	Symcrypt.getDB({
