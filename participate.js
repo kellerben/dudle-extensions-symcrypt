@@ -62,6 +62,15 @@ Symcrypt.askForPasswd = function (message, buttontext) {
 	Poll.exchangeAddParticipantRow(innerTr);
 };
 
+Symcrypt.removePrefilledUser = function () {
+	var olduser = $("#add_participant_input")[0].value;
+	if (Symcrypt.db[olduser]) {
+		$("#polltable form input[name='olduser']")[0].value = "";
+		$("#add_participant_input")[0].value = "";
+	}
+};
+
+
 Symcrypt.decryptDB = function () {
 	try {
 		Symcrypt.pollPW = sjcl.decrypt(Symcrypt.password, Symcrypt.encryptedPollPW);
@@ -77,6 +86,9 @@ Symcrypt.decryptDB = function () {
 		{ 
 			success: function (resp) {
 				Symcrypt.db = JSON.parse(sjcl.decrypt(Symcrypt.password, resp));
+
+				Symcrypt.removePrefilledUser();
+
 				$.each(Symcrypt.db, function (index, user) {
 					user.name = user.name.replace(/'/, "").replace(/"/, "");
 					Symcrypt.addRow(user);
@@ -118,6 +130,8 @@ Symcrypt.deleteUser = function (user) {
 	delete Symcrypt.db[escapeHtml(user)];
 	Symcrypt.storePoll();
 	Poll.rmRow(user);
+	$("#polltable form")[0].reset();
+	Symcrypt.removePrefilledUser();
 };
 
 Symcrypt.storePoll = function () {
@@ -134,7 +148,7 @@ Symcrypt.handleUserInput = function (e) {
 			return;
 		}
 
-		if (user_input.oldname !== "") {
+		if (user_input.oldname !== "" && Symcrypt.db[user_input.oldname]) {
 			Poll.cancelEdit();
 			Symcrypt.deleteUser(user_input.oldname);
 		}
@@ -147,6 +161,7 @@ Symcrypt.handleUserInput = function (e) {
 
 		Symcrypt.addRow(user_input);
 		this.reset();
+		Symcrypt.removePrefilledUser();
 	}
 };
 
