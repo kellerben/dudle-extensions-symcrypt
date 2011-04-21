@@ -78,7 +78,7 @@ Symcrypt.removePrefilledUser = function () {
 };
 
 Symcrypt.showLogout = function () {
-	$("#tablist").after("<li id='logoutTab' class='nonactive_tab'><a href='javascript:Symcrypt.logout();'>&nbsp;" + _("Logout") + "&nbsp;</a></li>");
+	$("#tablist").append("<li id='logoutTab' class='nonactive_tab'><a href='javascript:Symcrypt.logout();'>&nbsp;" + _("Logout") + "&nbsp;</a></li>");
 };
 Symcrypt.logout = function () {
 	localStorage.clear();
