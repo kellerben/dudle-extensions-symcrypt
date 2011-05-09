@@ -153,20 +153,24 @@ Symcrypt.addRow = function (user) {
 
 Symcrypt.deleteUser = function (user) {
 	delete Symcrypt.db[escapeHtml(user)];
-	Symcrypt.storePoll();
-	Poll.rmRow(user);
-	$("#polltable form")[0].reset();
-	Symcrypt.removePrefilledUser();
+	Symcrypt.storePoll({
+		success: function () {
+			Poll.rmRow(user);
+			$("#polltable form")[0].reset();
+			Symcrypt.removePrefilledUser();
+		}
+	});
 };
 
 Symcrypt.storePoll = function () {
-	Poll.store("Symcrypt", Symcrypt.pollPW, sjcl.encrypt(Symcrypt.password, JSON.stringify(Symcrypt.db)));
+	Poll.store("Symcrypt", Symcrypt.pollPW, sjcl.encrypt(Symcrypt.password, JSON.stringify(Symcrypt.db)), arguments[0]);
 };
 
 Symcrypt.handleUserInput = function (e) {
 	e.preventDefault();
 
-	var user_input = Symcrypt.parseParticipantInputArray($(this).serializeArray());
+	var user_input = Symcrypt.parseParticipantInputArray($(this).serializeArray()),
+			form = this;
 	if (user_input.name.length !== 0) {
 		if (user_input.name.match(/"/) || user_input.name.match(/'/)) {
 			Poll.error(_("The username must not contain the characters ' and \"!"));
@@ -182,11 +186,15 @@ Symcrypt.handleUserInput = function (e) {
 
 		Symcrypt.db[user_input.name] = user_input;
 
-		Symcrypt.storePoll();
 
-		Symcrypt.addRow(user_input);
-		this.reset();
-		Symcrypt.removePrefilledUser();
+		Symcrypt.storePoll({
+			success: function () {
+				Symcrypt.addRow(user_input);
+				form.reset();
+				Symcrypt.removePrefilledUser();
+			}
+		});
+
 	}
 	return false;
 };

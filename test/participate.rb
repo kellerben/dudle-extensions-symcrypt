@@ -61,12 +61,6 @@ class ParticipateTest  < Test::Unit::TestCase
 		wait_for_ajax
 	end
 
-#   def test_passwordquestion
-#     [A, B].each{|user|
-#       assert_equal(user.name, @s.text(user.keyid))
-#     }
-#   end
-
 	def vote(user, test = 'symcrypt')
 		@s.type("add_participant_input", user.name)
 		user.vote.each_with_index{|vote,index|
@@ -112,32 +106,39 @@ class ParticipateTest  < Test::Unit::TestCase
 			assert_equal(sum.to_s, @s.text("//tr[@id='summary']//td[#{index+2}]"), "Index #{index} was wrong")
 		}
 	end
-	def test_vote
-		# ENCRYPTED
+	def test_voteencrypted
 		vote(A)
 		assert_voteResult([A])
 		vote(B)
 		assert_voteResult([A,B])
 		reload
 		assert_voteResult([A,B])
-
-		# DELETE
+	end
+	def test_delete
+		vote(A)
+		vote(B)
 		delete(A)
 		assert_voteResult([B])
 		vote(C)
 		assert_voteResult([B,C])
 		reload
 		assert_voteResult([B,C])
-
-		# CHANGE
-		change(C,D,true)
-		assert_voteResult([B,C])
-		change(C,D)
-		assert_voteResult([B,D])
+	end
+	def test_change
+		vote(A)
+		vote(B)
 		reload
-		assert_voteResult([B,D])
-
-		# UNENCRYPTED
+		change(A,C,true)
+		assert_voteResult([A,B])
+		reload
+		change(A,C)
+		assert_voteResult([B,C])
+		reload
+		assert_voteResult([B,C])
+	end
+	def test_plaintextvote
+		vote(B)
+		vote(D)
 		logout
 		reload(false)
 		@s.click("//input[@value='Continue without password (my vote is not password-protected)']")
@@ -175,8 +176,9 @@ class ParticipateTest  < Test::Unit::TestCase
 		@s.open("/")
 		@s.open("/symcrypt_participate_test/#passwd=blabla")
 		wait_for_all
+		assert_voteResult([A,B,D])
 		reload
-
+		assert_voteResult([A,B,D])
 	end
 	def reload(login = true)
 		@s.open("/symcrypt_participate_test")

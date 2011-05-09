@@ -13,7 +13,7 @@ module DudleTest
 	@@options.leavepoll = true
 	@@options.fast_setup = true
 	@@options.highlight = false
-	@@options.browser = "*custom /usr/bin/chromium-browser"
+	@@options.browser = "*custom /usr/bin/google-chrome"
 
 	OPTPARSE = OptionParser.new{|opts|
 		opts.on('--[no-]fast-setup', 'clone the repo for faster setup', "default: #{@@options.fast_setup}"){|bool|
@@ -28,8 +28,10 @@ module DudleTest
 		opts.on("--messie", "do not clean up the poll afterwards"){|bool|
 			@@options.leavepoll = bool
 		}
-		opts.on("--browser (epiphany|firefox|opera|iexplore|chromium)", "use a specific browser"){|string|
+		opts.on("--browser (epiphany|firefox|opera|iexplore|chromium|chrome)", "use a specific browser"){|string|
 			case string
+			when "chrome"
+				@@options.browser = "*custom /usr/bin/google-chrome"
 			when "chromium"
 				@@options.browser = "*custom /usr/bin/chromium-browser"
 			when "epiphany"
