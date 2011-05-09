@@ -13,23 +13,25 @@ module DudleTest
 	@@options.leavepoll = true
 	@@options.fast_setup = true
 	@@options.highlight = false
-	@@options.browser = "*custom /usr/bin/epiphany"
+	@@options.browser = "*custom /usr/bin/chromium-browser"
 
 	OPTPARSE = OptionParser.new{|opts|
 		opts.on('--[no-]fast-setup', 'clone the repo for faster setup', "default: #{@@options.fast_setup}"){|bool|
 			@@options.fast_setup = bool
 		}
 		opts.on('-s', '--slow', 'make it slow (+1s)'){|bool|
-			@@options.speed += 1000
+			@@options.speed += 500
 		}
-		opts.on('--highlight', 'Highlight located elements'){|bool|
+		opts.on('-h','--highlight', 'Highlight located elements'){|bool|
 			@@options.highlight = bool
 		}
 		opts.on("--messie", "do not clean up the poll afterwards"){|bool|
 			@@options.leavepoll = bool
 		}
-		opts.on("--browser (epiphany|firefox|opera|iexplore)", "use a specific browser"){|string|
+		opts.on("--browser (epiphany|firefox|opera|iexplore|chromium)", "use a specific browser"){|string|
 			case string
+			when "chromium"
+				@@options.browser = "*custom /usr/bin/chromium-browser"
 			when "epiphany"
 				@@options.browser = "*custom /usr/bin/epiphany"
 			when "firefox", "opera", "iexplore"
