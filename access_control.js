@@ -65,7 +65,7 @@ $(document).ready(function () {
 	if ($("#ac_participant").length === 1) {
 		Symcrypt.getDB({
 			success: Symcrypt.AcAlreadyInitialized,
-			failure: Symcrypt.AcNotInitialized
+			error: Symcrypt.AcNotInitialized
 		}); 
 	}
 });

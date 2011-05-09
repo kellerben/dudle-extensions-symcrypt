@@ -119,7 +119,7 @@ Symcrypt.decryptDB = function () {
 					Symcrypt.addRow(user);
 				});
 			},
-			failure: function (r) {
+			error: function (r) {
 				Symcrypt.db = {};
 			}
 		}
@@ -211,6 +211,7 @@ $(document).ready(function () {
 
 			$("#polltable form").unbind("submit");
 			$("#polltable form").bind("submit", Symcrypt.handleUserInput);
-		}
+		},
+		error: {} // poll without symcrypt
 	});
 });
