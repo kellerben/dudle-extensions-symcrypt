@@ -126,18 +126,6 @@ Symcrypt.decryptDB = function () {
 	);
 };
 
-Symcrypt.parseParticipantInputArray = function (arr) {
-	var ret = {};
-	ret.oldname = arr[0].value;
-	ret.name = arr[1].value;
-	$.each(arr, function (i, e) {
-		var col = e.name.match(/^add_participant_checked_(.*)$/);
-		if (col) {
-			ret[col[1]] = e.value;
-		}
-	});
-	return ret;
-};
 
 Symcrypt.addRow = function (user) {
 	if ($("#" + gfHtmlID(user.name) + "_tr").length !== 0) {
@@ -156,7 +144,7 @@ Symcrypt.deleteUser = function (user) {
 	Symcrypt.storePoll({
 		success: function () {
 			Poll.rmRow(user);
-			$("#polltable form")[0].reset();
+			Poll.resetForm();
 			Symcrypt.removePrefilledUser();
 		}
 	});
@@ -169,11 +157,10 @@ Symcrypt.storePoll = function () {
 Symcrypt.handleUserInput = function (e) {
 	e.preventDefault();
 
-	var user_input = Symcrypt.parseParticipantInputArray($(this).serializeArray()),
-			form = this;
+	var user_input = Poll.getParticipantInput();
 	if (user_input.name.length !== 0) {
 		if (user_input.name.match(/"/) || user_input.name.match(/'/)) {
-			Poll.error(_("The username must not contain the characters ' and \"!"));
+			Poll.hint(_("The username must not contain the characters ' and \"!"), "error");
 			return false;
 		}
 
@@ -190,7 +177,7 @@ Symcrypt.handleUserInput = function (e) {
 		Symcrypt.storePoll({
 			success: function () {
 				Symcrypt.addRow(user_input);
-				form.reset();
+				Poll.resetForm();
 				Symcrypt.removePrefilledUser();
 			}
 		});

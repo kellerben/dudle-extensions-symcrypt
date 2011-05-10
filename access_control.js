@@ -53,10 +53,13 @@ Symcrypt.AcNotInitialized = function () {
 		Poll.store("Symcrypt",
 			"init",
 			sjcl.encrypt(password, sjcl.codec.base64.fromBits(rand)),
-			{	write_passwd_new: rand.join("")}
+			{	
+				write_passwd_new: rand.join(""),
+				success: function () {
+					Symcrypt.AcAlreadyInitialized();
+				}
+			}
 		);
-
-		Symcrypt.AcAlreadyInitialized();
 		return false;
 	});
 };
