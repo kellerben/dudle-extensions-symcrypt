@@ -33,7 +33,7 @@ Symcrypt.storePasswdLocally = true;
 
 Symcrypt.enterPasswd = function () {
 	var innerTr = "<td colspan='2'>";
-	innerTr += _("Please enter the password");
+	innerTr += _("Please enter the password:");
 	innerTr += "</td><td colspan='"; 
 	innerTr += Poll.columns.length;
 	innerTr += "'><input type='password' id='symcryptpasswd' />";
@@ -199,7 +199,7 @@ $(document).ready(function () {
 				Symcrypt.password = localStorage["Symcrypt_" + Poll.ID + "_passwd"];
 			}
 			if (!Symcrypt.password) {
-				Symcrypt.askForPasswd(_("Parts of this poll are encrypted. You have to provide the password to see password-protected parts and to protect your vote by the password."), _("Enter password"));
+				Symcrypt.askForPasswd(_("Parts of this poll are protected by a password. You have to provide the password to see password-protected parts and to protect your vote by the password."), _("Enter password"));
 				return false;
 			}
 			Symcrypt.decryptDB();

@@ -20,10 +20,15 @@
 "use strict";
 
 $(document).ready(function () {
-	var pwd = localStorage["Symcrypt_" + Poll.ID + "_passwd"];
+	var pwd = localStorage["Symcrypt_" + Poll.ID + "_passwd"],
+	url;
 	if (pwd) {
-		$("#humanReadableURL").append("#passwd=" + pwd);
-		$("#mailtoURL")[0].href = $("#mailtoURL")[0].href.replace("/" + Poll.ID + "/", "/" + Poll.ID + "/#passwd=" + pwd);
-		$("#clickURL")[0].action = "./#passwd=" + pwd;
+		pwd = "#passwd=" + pwd;
+		url = $("#humanReadableURL").attr("value");
+		$("#humanReadableURL").attr({value: url + pwd});
+		$("#mailtoURL").attr({
+			href: $("#mailtoURL").attr("href").replace("/" + Poll.ID + "/", "/" + Poll.ID + "/" + pwd)
+		});
+		$("a[href='" + url + "']").append(pwd).attr({href: url + pwd});
 	}
 });

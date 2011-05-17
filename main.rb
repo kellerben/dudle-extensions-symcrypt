@@ -18,32 +18,15 @@
 ############################################################################
 
 
-
-extDir = "../extensions/symcrypt"
-if File.exists?("#{extDir}/locale/#{GetText.locale.language}/dudle_symcrypt.po")
-	$d.html.add_html_head("<link rel='gettext' type='application/x-po' href='#{extDir}/locale/#{GetText.locale.language}/dudle_symcrypt.po' />")
-end
-
-$d.html.add_head_script("#{extDir}/lib/sjcl.js")
-
-$d.html.add_head_script("#{extDir}/common.js")
+e = Extension.new
+e.add_lib("sjcl")
 
 $d.html.add_script(<<SCRIPT
-Symcrypt.extDir = '#{extDir}';
+Symcrypt.extDir = '#{e.basedir}';
 Symcrypt.passwordStar = '#{PASSWORDSTAR}';
 SCRIPT
 )
 
-case $d.tab
-when "access_control.cgi"
-  $d.html.add_head_script("#{extDir}/access_control.js")
-when "." 
-  if $d.is_poll?
-    $d.html.add_head_script("#{extDir}/participate.js")
-		$d.html.add_html_head("<link rel='stylesheet' type='text/css' href='#{extDir}/symcrypt.css' />")
-  end
-when "overview.cgi"
-	$d.html.add_head_script("#{extDir}/overview.js")
-end
-
+e.load_js
+e.add_css("symcrypt")
 
