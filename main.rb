@@ -28,5 +28,4 @@ SCRIPT
 )
 
 e.load_js
-e.add_css("symcrypt")
 

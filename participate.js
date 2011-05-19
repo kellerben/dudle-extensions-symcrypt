@@ -23,9 +23,10 @@ Symcrypt.tryPasswd = function (e) {
 	e.preventDefault();
 	Symcrypt.password = $("#symcryptpasswd")[0].value;
 	Poll.exchangeAddParticipantRow();
-	$("#polltable form").unbind("submit");
-	$("#polltable form").bind("submit", Symcrypt.handleUserInput);
+
 	Symcrypt.decryptDB();
+	$("#polltable form").unbind("submit");
+	Poll.submitHook(Symcrypt.handleUserInput);
 	return false;
 };
 
@@ -133,7 +134,11 @@ Symcrypt.addRow = function (user) {
 	}
 
 	var htmlrow = new cloneObject(user);
-	htmlrow.name = "<span class='username'>" + user.name + "</span><span class='symcryptEncrypted'></span>";
+	htmlrow.name = "<img class='symcryptEncrypted'";
+	htmlrow.name += " alt='" + _("Encrypted Vote") + "'";
+	htmlrow.name += " style='float: left'";
+	htmlrow.name += " src='" + Symcrypt.extDir + "/img/encrypted.png' >";
+	htmlrow.name += user.name;
 	htmlrow.editUser = "Poll.editUser";
 	htmlrow.deleteUser = "Symcrypt.deleteUser";
 	Poll.parseNaddRow(user.name, htmlrow);
@@ -154,17 +159,14 @@ Symcrypt.storePoll = function () {
 	Poll.store("Symcrypt", Symcrypt.pollPW, sjcl.encrypt(Symcrypt.password, JSON.stringify(Symcrypt.db)), arguments[0]);
 };
 
-Symcrypt.handleUserInput = function (e) {
-	e.preventDefault();
-
-	var user_input = Poll.getParticipantInput();
+Symcrypt.handleUserInput = function (user_input) {
 	if (user_input.name.length !== 0) {
 		if (user_input.name.match(/"/) || user_input.name.match(/'/)) {
 			Poll.hint(_("The username must not contain the characters ' and \"!"), "error");
 			return false;
 		}
 
-		if (user_input.oldname !== "" && Symcrypt.db[user_input.oldname]) {
+		if (user_input.oldname && Symcrypt.db[user_input.oldname]) {
 			Poll.cancelEdit();
 			Symcrypt.deleteUser(user_input.oldname);
 		}
@@ -205,7 +207,7 @@ $(document).ready(function () {
 			Symcrypt.decryptDB();
 
 			$("#polltable form").unbind("submit");
-			$("#polltable form").bind("submit", Symcrypt.handleUserInput);
+			Poll.submitHook(Symcrypt.handleUserInput);
 		},
 		error: {} // poll without symcrypt
 	});
