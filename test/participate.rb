@@ -69,19 +69,13 @@ class ParticipateTest  < Test::Unit::TestCase
 
 		@s.click("savebutton")
 		if test == 'symcrypt'
-			crypt_vote_test(user) 
+			wait_for_ajax
+			assert_equal(user.name,@s.text("//tr[@id='#{user.name}_tr']//td[2]"))
+			assert(@s.element?("//tr[@id='#{user.name}_tr']//span[@class='symcryptEncrypted']"))
 		else
-			vote_test(user)
+			wait_for_all
+			assert(@s.element?("//span[@id='#{user.name}']"))
 		end
-	end
-	def crypt_vote_test(user)
-		wait_for_ajax
-		assert_equal(user.name,@s.text("//tr[@id='#{user.name}_tr']//td[2]"))
-		assert(@s.element?("//tr[@id='#{user.name}_tr']//span[@class='symcryptEncrypted']"))
-	end
-	def vote_test(user)
-		wait_for_all
-		assert(@s.element?("//span[@id='#{user.name}']"))
 	end
 	def delete(user)
 		@s.click("//a[@title='Delete User #{user.name} ...']")
@@ -132,6 +126,7 @@ class ParticipateTest  < Test::Unit::TestCase
 		assert_voteResult([A,B])
 		reload
 		change(A,C)
+		sleep(0.5) # for some reason, this is needed…
 		assert_voteResult([B,C])
 		reload
 		assert_voteResult([B,C])
