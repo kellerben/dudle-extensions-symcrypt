@@ -71,7 +71,7 @@ class ParticipateTest  < Test::Unit::TestCase
 		if test == 'symcrypt'
 			wait_for_ajax
 			assert_equal(user.name,@s.text("//tr[@id='#{user.name}_tr']//td[2]"))
-			assert(@s.element?("//tr[@id='#{user.name}_tr']//span[@class='symcryptEncrypted']"))
+			assert(@s.element?("//tr[@id='#{user.name}_tr']//img[@class='symcryptEncrypted']"))
 		else
 			wait_for_all
 			assert(@s.element?("//span[@id='#{user.name}']"))
