@@ -88,18 +88,21 @@ Symcrypt.logout = function () {
 };
 
 
+
 Symcrypt.decryptDB = function () {
 	try {
 		Symcrypt.pollPW = sjcl.decrypt(Symcrypt.password, Symcrypt.encryptedPollPW);
 
 		if (Symcrypt.storePasswdLocally) {
-			localStorage["Symcrypt_" + Poll.ID + "_passwd"] = Symcrypt.password;
+			if (gfStoreLocal("Symcrypt_" + Poll.ID + "_passwd", Symcrypt.password)) {
+				Symcrypt.showLogout();
+			}
+
 			var pw = location.href.match(/#.*passwd=([^\?]*)/);
 			if (!pw || pw[1] !== Symcrypt.password) {
 				location.href = location.href + "#passwd=" + Symcrypt.password;
 			}
 
-			Symcrypt.showLogout();
 		}
 	} catch (e) {
 		if (e.toString() === "CORRUPT: ccm: tag doesn't match") {
@@ -189,6 +192,8 @@ Symcrypt.handleUserInput = function (user_input) {
 };
 
 
+
+
 $(document).ready(function () {
 	Symcrypt.getDB({
 		success: function (enc) {
@@ -198,7 +203,7 @@ $(document).ready(function () {
 			if (Symcrypt.password) {
 				Symcrypt.password = Symcrypt.password[1];
 			} else {
-				Symcrypt.password = localStorage["Symcrypt_" + Poll.ID + "_passwd"];
+				Symcrypt.password = gfGetLocal("Symcrypt_" + Poll.ID + "_passwd");
 			}
 			if (!Symcrypt.password) {
 				Symcrypt.askForPasswd(_("Parts of this poll are protected by a password. You have to provide the password to see password-protected parts and to protect your vote by the password."), _("Enter password"));
