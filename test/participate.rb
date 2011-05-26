@@ -7,6 +7,10 @@ A = OpenStruct.new(
 	:name => "Alice",
 	:vote => [NO,YES,MAYBE]
 )
+A2 = OpenStruct.new(
+	:name => "Alice",
+	:vote => [YES,YES,YES]
+)
 B = OpenStruct.new(
 	:name => "Bob",
 	:vote => [YES,YES,NO]
@@ -125,8 +129,12 @@ class ParticipateTest  < Test::Unit::TestCase
 		change(A,C,true)
 		assert_voteResult([A,B])
 		reload
-		change(A,C)
-		sleep(0.5) # for some reason, this is needed…
+		change(A,A2)
+		sleep(0.5) # this is needed for some reason
+		assert_voteResult([A2,B])
+		reload
+		change(A2,C)
+		sleep(0.5) # this is needed for some reason
 		assert_voteResult([B,C])
 		reload
 		assert_voteResult([B,C])
