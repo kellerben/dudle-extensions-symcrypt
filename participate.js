@@ -87,7 +87,25 @@ Symcrypt.logout = function () {
 	location.href = location.href.replace(/#.*/, "");
 };
 
-
+Symcrypt.db = {};
+Symcrypt.castedVotes = 0;
+Symcrypt.loadVotes = function () {
+	Poll.load("Symcrypt", Symcrypt.pollPW + Symcrypt.castedVotes, { 
+		error: {}, // finished now
+		success: function (resp) {
+			if (resp !== "") {
+				var user = JSON.parse(sjcl.decrypt(Symcrypt.password, resp));
+				user.name = user.name.replace(/'/, "").replace(/"/, "");
+				Symcrypt.addRow(user);
+				user.index = Symcrypt.castedVotes;
+				Symcrypt.db[user.name] = user;
+				Symcrypt.removePrefilledUser();
+			}
+			Symcrypt.castedVotes += 1;
+			Symcrypt.loadVotes();
+		}
+	});
+};
 
 Symcrypt.decryptDB = function () {
 	try {
@@ -112,22 +130,7 @@ Symcrypt.decryptDB = function () {
 			throw e;
 		}
 	}
-	Poll.load("Symcrypt", Symcrypt.pollPW, 
-		{ 
-			success: function (resp) {
-				Symcrypt.db = JSON.parse(sjcl.decrypt(Symcrypt.password, resp));
-				Symcrypt.removePrefilledUser();
-
-				$.each(Symcrypt.db, function (index, user) {
-					user.name = user.name.replace(/'/, "").replace(/"/, "");
-					Symcrypt.addRow(user);
-				});
-			},
-			error: function (r) {
-				Symcrypt.db = {};
-			}
-		}
-	);
+	Symcrypt.loadVotes();
 };
 
 
@@ -148,18 +151,15 @@ Symcrypt.addRow = function (user) {
 };
 
 Symcrypt.deleteUser = function (user) {
-	delete Symcrypt.db[escapeHtml(user)];
-	Symcrypt.storePoll({
+	var username = escapeHtml(user);
+	Poll.store("Symcrypt", Symcrypt.pollPW + Symcrypt.db[username].index, "", {
 		success: function () {
 			Poll.rmRow(user);
+			delete Symcrypt.db[username];
 			Poll.resetForm();
 			Symcrypt.removePrefilledUser();
 		}
 	});
-};
-
-Symcrypt.storePoll = function () {
-	Poll.store("Symcrypt", Symcrypt.pollPW, sjcl.encrypt(Symcrypt.password, JSON.stringify(Symcrypt.db)), arguments[0]);
 };
 
 Symcrypt.handleUserInput = function (user_input) {
@@ -178,15 +178,16 @@ Symcrypt.handleUserInput = function (user_input) {
 
 		Symcrypt.db[user_input.name] = user_input;
 
-
-		Symcrypt.storePoll({
+		Poll.store("Symcrypt", Symcrypt.pollPW + Symcrypt.castedVotes, sjcl.encrypt(Symcrypt.password, JSON.stringify(user_input)), {
 			success: function () {
 				Symcrypt.addRow(user_input);
 				Poll.resetForm();
 				Symcrypt.removePrefilledUser();
+				user_input.index = Symcrypt.castedVotes;
+				Symcrypt.castedVotes++;
+				Symcrypt.db[user_input.name] = user_input;
 			}
 		});
-
 	}
 	return false;
 };
