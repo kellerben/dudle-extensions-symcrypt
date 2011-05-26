@@ -20,8 +20,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-17 16:58+0200\n"
-"PO-Revision-Date: 2011-05-17 17:02+0100\n"
+"POT-Creation-Date: 2011-05-26 14:56+0200\n"
+"PO-Revision-Date: 2011-05-26 14:16+0100\n"
 "Last-Translator: Benjamin Kellermann <Benjamin.Kellermann@tu-dresden.de>\n"
 "Language-Team: \n"
 "Language: \n"
@@ -32,6 +32,16 @@ msgstr ""
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 
+#: preload.rb:31
+msgid ""
+"Parts of this poll can only be accessed with JavaScript. You have to enable "
+"JavaScript and reload this page to see these parts and to protect your vote "
+"by password."
+msgstr ""
+"Auf Teile dieser Umfrage kann nur mit JavaScript zugegriffen werden. Sie "
+"müssen JavaScript aktivieren und diese Seite neu laden um die fehlenden "
+"Teile zu sehen und um Ihre eigene Stimme mit einem Passwort zu schützen."
+
 #: access_control.js:34
 msgid "Password must not be empty."
 msgstr "Das Passwort darf nicht leer sein."
@@ -40,47 +50,56 @@ msgstr "Das Passwort darf nicht leer sein."
 msgid "Passwords did not match."
 msgstr "Die Passwörter stimmten nicht überein."
 
-#: participate.js:36
+#: participate.js:37
 msgid "Please enter the password:"
 msgstr "Bitte geben sie das Passwort ein:"
 
-#: participate.js:41
+#: participate.js:42
 msgid "remember password"
 msgstr "Passwort merken"
 
-#: participate.js:44
+#: participate.js:45
 msgid "Save"
 msgstr "Speichern"
 
-#: participate.js:67
+#: participate.js:68
 msgid "Continue without password (my vote is not password-protected)"
 msgstr "Ohne Passwort fortfahren (meine Stimme ist nicht passwortgeschützt)"
 
-#: participate.js:81
+#: participate.js:82
 msgid "Logout"
 msgstr "Logout"
 
-#: participate.js:85
+#: participate.js:86
 msgid "Do not forget to clean your browser history!"
 msgstr "Vergessen Sie nicht die Browserhistory zu löschen!"
 
-#: participate.js:105
+#: participate.js:109
 msgid "The password you entered was wrong!"
 msgstr "Das eingegebene Passwort war falsch!"
 
-#: participate.js:105
+#: participate.js:109
 msgid "Try again"
 msgstr "Nochmal versuchen"
 
-#: participate.js:163
+#: participate.js:141
+msgid "Encrypted Vote"
+msgstr "Verschlüsselte Stimme"
+
+#: participate.js:168
 msgid "The username must not contain the characters ' and \"!"
 msgstr "Der Benutzername darf weder ' noch \" enthalten!"
 
-#: participate.js:202
-msgid "Parts of this poll are protected by a password. You have to provide the password to see password-protected parts and to protect your vote by the password."
-msgstr "Teile dieser Umfrage sind mit einem Passwort geschützt. Sie müssen das Passwort eingeben, um die passwortgeschützten Teile zu sehen und um Ihre eigene Stimme mit dem Passwort zu schützen."
+#: participate.js:209
+msgid ""
+"Parts of this poll are protected by a password. You have to provide the "
+"password to see password-protected parts and to protect your vote by the "
+"password."
+msgstr ""
+"Teile dieser Umfrage sind mit einem Passwort geschützt. Sie müssen das "
+"Passwort eingeben, um die passwortgeschützten Teile zu sehen und um Ihre "
+"eigene Stimme mit dem Passwort zu schützen."
 
-#: participate.js:202
+#: participate.js:209
 msgid "Enter password"
 msgstr "Passwort eingeben"
-

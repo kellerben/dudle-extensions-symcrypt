@@ -1,5 +1,5 @@
 ############################################################################
-# Copyright 2009 Benjamin Kellermann                                       #
+# Copyright 2009,2010,2011 Benjamin Kellermann                             #
 #                                                                          #
 # This file is part of dudle.                                              #
 #                                                                          #
@@ -17,20 +17,19 @@
 # along with dudle.  If not, see <http://www.gnu.org/licenses/>.           #
 ############################################################################
 
-DOMAIN=dudle
-
-locale: $(foreach p,$(wildcard locale/*/$(DOMAIN).po), $(addsuffix .mo,$(basename $p)))
-locale/$(DOMAIN).pot: *.js
+locale: $(foreach p,$(wildcard locale/*/dudle.po), $(addsuffix .mo,$(basename $p)))
+locale/dudle.pot: *.js *.rb
 	rm -f $@
-	xgettext -L Python *.js -o $@
+	rgettext *.rb -o $@
+	xgettext -j -L Python *.js -o $@
 
 %.mo: %.po
 	msgfmt $*.po -o $*.mo
 
-locale/%/$(DOMAIN).po: locale/$(DOMAIN).pot
-	msgmerge $@ $? >/tmp/$(DOMAIN)_$*_tmp.po
-	if [ "`msgcomm -u /tmp/$(DOMAIN)_$*_tmp.po $@`" ];then\
-		mv /tmp/$(DOMAIN)_$*_tmp.po $@;\
+locale/%/dudle.po: locale/dudle.pot
+	msgmerge $@ $? >/tmp/dudle_$*_tmp.po
+	if [ "`msgcomm -u /tmp/dudle_$*_tmp.po $@`" ];then\
+		mv /tmp/dudle_$*_tmp.po $@;\
 	else\
 		touch $@;\
 	fi

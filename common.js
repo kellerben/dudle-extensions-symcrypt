@@ -25,6 +25,9 @@ if (typeof(Symcrypt) === "undefined") {
 } else {
 	alert("Somebody captured the Namespace Symcrypt!!!");
 }
+$(document).ready(function () {
+	$("#symcryptJSwarning").remove();
+});
 
 
 sjcl.random.startCollectors();
