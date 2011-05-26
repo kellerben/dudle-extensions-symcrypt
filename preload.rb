@@ -23,7 +23,7 @@ end
 
 GetText.bindtextdomain("dudle_symcrypt", :path => "#{Dir.pwd}/../extensions/#{$current_ext_dir}/locale/")
 
-if $d.table.extensiondata && $d.table.extensiondata["Symcrypt"]
+if $d.table && $d.table.extensiondata && $d.table.extensiondata["Symcrypt"]
 #   if $cgi.include?("nojs")
 		Poll.table_html_hooks << lambda {
 			ret = ""
