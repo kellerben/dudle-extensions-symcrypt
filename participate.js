@@ -152,7 +152,7 @@ Symcrypt.addRow = function (user) {
 Symcrypt.deleteUser = function (user, successfunc, args) {
 	var username = escapeHtml(user), userindex = -1;
 	$.each(Symcrypt.db, function (i, user) {
-		if (user.name == username) {
+		if (user.name === username) {
 			userindex = i;
 		}
 	});
@@ -185,14 +185,22 @@ Symcrypt.addUser = function (user_input) {
 	});
 };
 
+var foo;
 Symcrypt.handleUserInput = function (user_input) {
 	if (user_input.name.length !== 0) {
 		if (user_input.name.match(/"/) || user_input.name.match(/'/)) {
 			Poll.hint(_("The username must not contain the characters ' and \"!"), "error");
 			return false;
 		}
-
-		if (user_input.oldname && Symcrypt.db.indexOf(user_input.oldname) !== -1) {
+		var userindex = -1;
+		if (user_input.oldname) {
+			$.each(Symcrypt.db, function (i, u) {
+				if (user_input.oldname === u.name) {
+					userindex = i;
+				}
+			});
+		}
+		if (userindex !== -1) {
 			Poll.cancelEdit();
 			Symcrypt.deleteUser(user_input.oldname, Symcrypt.addUser, user_input);
 		} else {
