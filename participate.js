@@ -179,6 +179,7 @@ Symcrypt.addUser = function (user_input) {
 
 	Poll.store("Symcrypt", Symcrypt.pollPW + "_" + userindex, sjcl.encrypt(Symcrypt.password, JSON.stringify(user_input)), {
 		success: function () {
+			user_input.time = new Date();
 			Symcrypt.addRow(user_input);
 			Poll.resetForm();
 			Symcrypt.removePrefilledUser();
