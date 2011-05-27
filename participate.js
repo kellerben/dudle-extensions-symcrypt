@@ -89,14 +89,16 @@ Symcrypt.logout = function () {
 
 Symcrypt.db = [];
 Symcrypt.loadVotes = function () {
-	Poll.load("Symcrypt", Symcrypt.pollPW + "_" + Symcrypt.db.length, { 
+	Poll.load("Symcrypt", Symcrypt.pollPW + "_" + Symcrypt.db.length, {
+		type: "json",
 		error: {}, // finished now
 		success: function (resp) {
-			if (resp === "") {
+			if (resp.data === "") {
 				Symcrypt.db.push("");
 			} else {
-				var user = JSON.parse(sjcl.decrypt(Symcrypt.password, resp));
+				var user = JSON.parse(sjcl.decrypt(Symcrypt.password, resp.data));
 				user.name = user.name.replace(/'/, "").replace(/"/, "");
+				user.time = resp.time;
 				Symcrypt.addRow(user);
 				Symcrypt.db.push(user);
 				Symcrypt.removePrefilledUser();
