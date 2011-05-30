@@ -27,7 +27,6 @@ if (typeof(Symcrypt) === "undefined") {
 }
 $(document).ready(function () {
 	$("#symcryptJSwarning").remove();
-	$("#participanttable").trigger("update");
 });
 
 
