@@ -72,7 +72,7 @@ Symcrypt.askForPasswd = function (message, buttontext) {
 
 Symcrypt.removePrefilledUser = function () {
 	var olduser = $("#add_participant_input")[0].value;
-	if (Symcrypt.db.indexOf(olduser) !== -1) {
+	if ($.inArray(olduser, Symcrypt.db) !== -1) {
 		$("#polltable form input[name='olduser']")[0].value = "";
 		$("#add_participant_input")[0].value = "";
 	}
@@ -175,7 +175,7 @@ Symcrypt.deleteUser = function (user, successfunc, args) {
 
 Symcrypt.addUser = function (user_input) {
 	user_input.name = escapeHtml(user_input.name);
-	var userindex = Symcrypt.db.indexOf("") === -1 ? Symcrypt.db.length : Symcrypt.db.indexOf("");
+	var userindex = $.inArray("", Symcrypt.db) === -1 ? Symcrypt.db.length : $.inArray("", Symcrypt.db);
 
 	Poll.store("Symcrypt", Symcrypt.pollPW + "_" + userindex, sjcl.encrypt(Symcrypt.password, JSON.stringify(user_input)), {
 		success: function () {
