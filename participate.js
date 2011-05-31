@@ -145,8 +145,8 @@ Symcrypt.addRow = function (user) {
 	htmlrow.name = "<img class='symcryptEncrypted'";
 	htmlrow.name += " alt='" + _("Encrypted Vote") + "'";
 	htmlrow.name += " style='float: left'";
-	htmlrow.name += " src='" + Symcrypt.extDir + "/img/encrypted.png' >";
-	htmlrow.name += user.name;
+	htmlrow.name += " src='" + Symcrypt.extDir + "/img/encrypted.png' />";
+	htmlrow.name += "<span id='" + gfHtmlID(escapeHtml(user.name)) + "'>" + user.name + "</span>";
 	htmlrow.editUser = "Poll.editUser";
 	htmlrow.deleteUser = "Symcrypt.deleteUser";
 	Poll.parseNaddRow(user.name, htmlrow);
