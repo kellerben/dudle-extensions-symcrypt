@@ -19,18 +19,39 @@
 
 "use strict";
 
+
+
+Symcrypt.storePasswdLocally = true;
+
+Symcrypt.tryDecrypt = function () {
+	if (Symcrypt.decryptDB()) {
+		if (Symcrypt.storePasswdLocally) {
+			if (gfStoreLocal("Symcrypt_" + Poll.ID + "_passwd", Symcrypt.password)) {
+				Symcrypt.showLogout();
+			}
+
+			var pw = location.href.match(/#.*passwd=([^\?]*)/);
+			if (!pw || pw[1] !== Symcrypt.password) {
+				location.href = location.href + "#passwd=" + Symcrypt.password;
+			}
+
+		}
+	} else {
+		Symcrypt.askForPasswd(_("The password you entered was wrong!"), _("Try again"));
+	}
+}
+
 Symcrypt.tryPasswd = function (e) {
 	e.preventDefault();
 	Symcrypt.password = $("#symcryptpasswd")[0].value;
 	Poll.exchangeAddParticipantRow();
 
-	Symcrypt.decryptDB();
+	Symcrypt.tryDecrypt();
+
 	$("#polltable form").unbind("submit");
 	Poll.submitHook(Symcrypt.addUser);
 	return false;
 };
-
-Symcrypt.storePasswdLocally = true;
 
 Symcrypt.enterPasswd = function () {
 	Poll.exchangeAddParticipantRow();
@@ -86,53 +107,6 @@ Symcrypt.logout = function () {
 	localStorage.clear();
 	alert(_("Do not forget to clean your browser history!"));
 	location.href = location.href.replace(/#.*/, "");
-};
-
-Symcrypt.db = [];
-Symcrypt.loadVotes = function () {
-	Poll.load("Symcrypt", Symcrypt.pollPW + "_" + Symcrypt.db.length, {
-		type: "json",
-		error: {}, // finished now
-		success: function (resp) {
-			if (resp.data === "") {
-				Symcrypt.db.push("");
-			} else {
-				var user = JSON.parse(sjcl.decrypt(Symcrypt.password, resp.data));
-				user.name = user.name.replace(/'/, "").replace(/"/, "");
-				user.time = resp.time;
-				Symcrypt.addRow(user);
-				Symcrypt.db.push(user);
-				Symcrypt.removePrefilledUser();
-			}
-			Symcrypt.loadVotes();
-		}
-	});
-};
-
-Symcrypt.decryptDB = function () {
-	try {
-		Symcrypt.pollPW = sjcl.decrypt(Symcrypt.password, Symcrypt.encryptedPollPW);
-
-		if (Symcrypt.storePasswdLocally) {
-			if (gfStoreLocal("Symcrypt_" + Poll.ID + "_passwd", Symcrypt.password)) {
-				Symcrypt.showLogout();
-			}
-
-			var pw = location.href.match(/#.*passwd=([^\?]*)/);
-			if (!pw || pw[1] !== Symcrypt.password) {
-				location.href = location.href + "#passwd=" + Symcrypt.password;
-			}
-
-		}
-	} catch (e) {
-		if (e.toString() === "CORRUPT: ccm: tag doesn't match") {
-			Symcrypt.askForPasswd(_("The password you entered was wrong!"), _("Try again"));
-			return;
-		} else {
-			throw e;
-		}
-	}
-	Symcrypt.loadVotes();
 };
 
 
@@ -226,7 +200,7 @@ $(document).ready(function () {
 				Symcrypt.askForPasswd(_("Parts of this poll are protected by a password. You have to provide the password to see password-protected parts and to protect your vote by the password."), _("Enter password"));
 				return false;
 			}
-			Symcrypt.decryptDB();
+			Symcrypt.tryDecrypt();
 
 			$("#polltable form").unbind("submit");
 			Poll.submitHook(Symcrypt.addUser);

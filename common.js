@@ -34,6 +34,49 @@ sjcl.random.startCollectors();
 
 Symcrypt.getDB = function () {
 	var options = arguments[0] || {};
+	if (Symcrypt.pollRevision) {
+		options.revision = Symcrypt.pollRevision;
+	}
 	Poll.load("Symcrypt", "init", options);
 };
 
+
+
+/* functions common for participate and history */
+
+Symcrypt.db = [];
+Symcrypt.loadVotes = function () {
+	Poll.load("Symcrypt", Symcrypt.pollPW + "_" + Symcrypt.db.length, {
+		type: "json",
+		error: {}, // finished now
+		revision: Symcrypt.pollRevision,
+		success: function (resp) {
+			if (resp.data === "") {
+				Symcrypt.db.push("");
+			} else {
+				var user = JSON.parse(sjcl.decrypt(Symcrypt.password, resp.data));
+				user.name = user.name.replace(/'/, "").replace(/"/, "");
+				user.time = resp.time;
+				Symcrypt.addRow(user);
+				Symcrypt.db.push(user);
+				//Symcrypt.removePrefilledUser(); ??? FIXME: is this really needed ???
+			}
+			Symcrypt.loadVotes();
+		}
+	});
+};
+
+/* decrypts the AES key, returns {true, false} if successful (pw correct) */
+Symcrypt.decryptDB = function () {
+	try {
+		Symcrypt.pollPW = sjcl.decrypt(Symcrypt.password, Symcrypt.encryptedPollPW);
+	} catch (e) {
+		if (e.toString() === "CORRUPT: ccm: tag doesn't match") {
+			return false;
+		} else {
+			throw e;
+		}
+	}
+	Symcrypt.loadVotes();
+	return true;
+};
