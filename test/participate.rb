@@ -121,6 +121,9 @@ class ParticipateTest  < Test::Unit::TestCase
 		assert_voteResult([B,C])
 		reload
 		assert_voteResult([B,C])
+		@s.click("//a[@title='Edit User #{B.name} ...']")
+		delete(C)
+		assert_voteResult([B])
 	end
 	def test_change
 		vote(A)

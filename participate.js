@@ -127,6 +127,7 @@ Symcrypt.addRow = function (user) {
 
 Symcrypt.deleteUser = function (user) {
 	var username = escapeHtml(user), userindex = -1;
+	Poll.cancelPossibleEdit();
 	$.each(Symcrypt.db, function (i, user) {
 		if (user.name === username) {
 			userindex = i;
