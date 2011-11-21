@@ -150,35 +150,41 @@ Symcrypt.addUser = function (user_input) {
 			Poll.hint(_("The username must not contain the characters ' and \"!"), "error");
 			return false;
 		}
-		var userindex = -1, olduser;
-		if (user_input.oldname) {
-			$.each(Symcrypt.db, function (i, u) {
-				if (escapeHtml(user_input.oldname) === u.name) {
-					userindex = i;
+		$(document).ajaxStop(function() {
+			$(this).unbind("ajaxStop");
+
+			var userindex = -1, olduser;
+			if (user_input.oldname) {
+				$.each(Symcrypt.db, function (i, u) {
+					if (escapeHtml(user_input.oldname) === u.name) {
+						userindex = i;
+					}
+				});
+				olduser = user_input.oldname;
+				delete user_input.oldname;
+			}
+			if (userindex === -1) {
+				userindex = $.inArray("", Symcrypt.db) === -1 ? Symcrypt.db.length : $.inArray("", Symcrypt.db);
+			}
+			user_input.name = escapeHtml(user_input.name);
+
+
+
+			Poll.store("Symcrypt", Symcrypt.pollPW + "_" + userindex, sjcl.encrypt(Symcrypt.password, JSON.stringify(user_input)), {
+				success: function () {
+					if (olduser) {
+						Poll.cancelEdit();
+						Poll.rmRow(olduser);
+					}
+					user_input.time = new Date();
+					Symcrypt.addRow(user_input);
+					Poll.resetForm();
+					Symcrypt.removePrefilledUser();
+					Symcrypt.db[userindex] = user_input;
 				}
 			});
-			olduser = user_input.oldname;
-			delete user_input.oldname;
-		}
-		if (userindex === -1) {
-			userindex = $.inArray("", Symcrypt.db) === -1 ? Symcrypt.db.length : $.inArray("", Symcrypt.db);
-		}
-		user_input.name = escapeHtml(user_input.name);
-
-		Poll.store("Symcrypt", Symcrypt.pollPW + "_" + userindex, sjcl.encrypt(Symcrypt.password, JSON.stringify(user_input)), {
-			success: function () {
-				if (olduser) {
-					Poll.cancelEdit();
-					Poll.rmRow(olduser);
-				}
-				user_input.time = new Date();
-				Symcrypt.addRow(user_input);
-				Poll.resetForm();
-				Symcrypt.removePrefilledUser();
-				Symcrypt.db[userindex] = user_input;
-			}
 		});
-
+		Symcrypt.loadVotes();
 	}
 	return false;
 };
