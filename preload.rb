@@ -25,7 +25,7 @@ GetText.bindtextdomain("dudle_symcrypt", :path => "#{Dir.pwd}/../extensions/#{$c
 
 if $d.table && $d.table.extensiondata && $d.table.extensiondata["Symcrypt"]
 #   if $cgi.include?("nojs")
-		Poll.table_html_hooks << lambda {
+		Poll.table_html_hooks << lambda { |currenttext|
 			ret = ""
 			ret += "<tr id='symcryptJSwarning'>"
 			ret += "<td class='warning' colspan='#{$d.table.head.col_size+3}'>"
