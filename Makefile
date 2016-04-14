@@ -18,9 +18,12 @@
 ############################################################################
 
 locale: $(foreach p,$(wildcard locale/*/dudle.po), $(addsuffix .mo,$(basename $p)))
+
+RGETTEXT=$(firstword $(shell which rgettext rxgettext))
+
 locale/dudle.pot: *.js *.rb
 	rm -f $@
-	rgettext *.rb -o $@
+	$(RGETTEXT) *.rb -o $@
 	xgettext -j -L Python *.js -o $@
 
 %.mo: %.po
