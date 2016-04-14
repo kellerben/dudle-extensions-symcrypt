@@ -28,7 +28,20 @@ Symcrypt.AcAlreadyInitialized = function () {
 };
 
 Symcrypt.AcNotInitialized = function () {
-	$("#ac_participant").submit(function () {
+	if ($('#ac_participant #password0').length === 1) {
+		var keytext = _("Activate symmetric encryption?");
+		$('<tr><td></td><td><input type="checkbox" id="symcrypt" name="symcrypt" /><label for="symcrypt">' + keytext + '</label></td></tr>').insertBefore($('#ac_participant tr:last'));
+	}
+	$("#symcrypt").change(function(){
+		if ($('#symcrypt:checked').length === 1) {
+			$("#ac_participant").submit(Symcrypt.setParticipantFunction);
+		} else {
+			$("#ac_participant").off("submit");
+		}
+	});
+};
+
+Symcrypt.setParticipantFunction = function () {
 		$("#participanthint .error").remove();
 		if ($("#password0")[0].value === "") {
 			$("#participanthint").append("<div class='error'>" + _("Password must not be empty.") + "</div>");
@@ -61,7 +74,6 @@ Symcrypt.AcNotInitialized = function () {
 			}
 		);
 		return false;
-	});
 };
 
 $(document).ready(function () {
