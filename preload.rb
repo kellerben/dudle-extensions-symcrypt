@@ -21,7 +21,7 @@ class Poll
 	attr_reader :extensiondata
 end
 
-GetText.bindtextdomain("dudle_symcrypt", :path => "#{Dir.pwd}/../extensions/#{$current_ext_dir}/locale/")
+GetText.bindtextdomain("dudle_symcrypt", :path => "#{Dir.pwd.force_encoding("UTF-8")}/../extensions/#{$current_ext_dir}/locale/")
 
 if $d.table && $d.table.extensiondata && $d.table.extensiondata["Symcrypt"]
 #   if $cgi.include?("nojs")
