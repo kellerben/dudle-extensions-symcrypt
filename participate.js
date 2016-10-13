@@ -55,18 +55,37 @@ Symcrypt.tryPasswd = function (e) {
 
 Symcrypt.enterPasswd = function () {
 	Poll.exchangeAddParticipantRow();
-	var innerTr = "<td colspan='2'>";
-	innerTr += _("Please enter the password:");
-	innerTr += "</td><td colspan='"; 
-	innerTr += Poll.columns.length;
-	innerTr += "'><input type='password' id='symcryptpasswd' />";
-	innerTr += "<br /><input type='checkbox' id='rememberMe' onclick='Symcrypt.storePasswdLocally = !Symcrypt.storePasswdLocally' checked='checked' />&nbsp;<label for='rememberMe'>";
-	innerTr += _("remember password");
-	innerTr += "</label>";
-	innerTr += "</td><td><input type='submit' value='";
-	innerTr += _("Save");
-	innerTr += "' />";
-	innerTr += "</td>";
+	var innerTr = [];
+	innerTr.push($("<td />", {
+		"colspan" : 2,
+		"text" : _("Please enter the password:")
+	}));
+	innerTr.push($("<td />", {
+		"colspan" : Poll.columns.length,
+	})
+	.append($("<input />",{
+		"type" : 'password',
+		"id" : 'symcryptpasswd'
+	}))
+	.append($("<br />"))
+	.append($("<input />",{
+		"type" : 'checkbox',
+		"id" : 'rememberMe',
+		"onclick" : 'Symcrypt.storePasswdLocally = !Symcrypt.storePasswdLocally',
+		"checked" : 'checked'
+	}))
+	.append("&nbsp;")
+	.append($("<label />", {
+		"for" : 'rememberMe',
+		"text" : _("remember password")
+	})));
+
+	innerTr.push($("<td />")
+		.append($("<input />", {
+			"type" : 'submit',
+			"value" : _("Save")
+		}))
+	);
 	Poll.exchangeAddParticipantRow(innerTr);
 	$("#polltable form").unbind("submit");
 	$("#polltable form").bind("submit", Symcrypt.tryPasswd);
@@ -80,15 +99,23 @@ Symcrypt.disable = function () {
 
 
 Symcrypt.askForPasswd = function (message, buttontext) {
-	var innerTr = "<td colspan='";
-	innerTr += Poll.columns.length + 3;
-	innerTr += "'>";
-	innerTr += message;
-	innerTr += "<div><input type='button' onclick='Symcrypt.enterPasswd()' value='";
-	innerTr += buttontext;
-	innerTr += "' /> <input type='button' onclick='Symcrypt.disable()' value='";
-	innerTr += _("Continue without password (my vote is not password-protected)");
-	innerTr += "' /></div></td>";
+	var innerTr = $("<td />", {
+		"colspan" : Poll.columns.length + 3,
+		"text" : message
+	});
+	innerTr.append($("<div />")
+			.append($("<input />",{
+				"type" : "button",
+				"onclick" : 'Symcrypt.enterPasswd()',
+				value: buttontext
+			}))
+			.append(" ")
+			.append($("<input />",{
+				"type" : 'button',
+				"onclick" : 'Symcrypt.disable()',
+				"value" : _("Continue without password (my vote is not password-protected)")
+			}))
+	);
 	Poll.exchangeAddParticipantRow(innerTr);
 };
 
@@ -101,7 +128,15 @@ Symcrypt.removePrefilledUser = function () {
 };
 
 Symcrypt.showLogout = function () {
-	$("#tablist").append("<li id='logoutTab' class='nonactive_tab'><a href='javascript:Symcrypt.logout();'>&nbsp;" + _("Logout") + "&nbsp;</a></li>");
+	$("#tablist").append($("<li />", {
+			"id" : 'logoutTab',
+			"class" : 'nonactive_tab'
+		})
+		.append($("<a />",{
+			"href" : 'javascript:Symcrypt.logout();',
+			"html" : "&nbsp;" + _("Logout") + "&nbsp;"
+		}))
+	);
 };
 Symcrypt.logout = function () {
 	localStorage.clear();
@@ -120,13 +155,13 @@ Symcrypt.addRow = function (user) {
 	htmlrow.before_name += " alt='" + _("Encrypted Vote") + "'";
 	htmlrow.before_name += " style='float: left'";
 	htmlrow.before_name += " src='" + Symcrypt.extDir + "/img/encrypted.png' />";
-	htmlrow.editUser = "Poll.editUser";
-	htmlrow.deleteUser = "Symcrypt.deleteUser";
+	htmlrow.editUser = Poll.editUser;
+	htmlrow.deleteUser = Symcrypt.deleteUser;
 	Poll.parseNaddRow(htmlrow);
 };
 
 Symcrypt.deleteUser = function (user) {
-	var username = escapeHtml(user), userindex = -1;
+	var username = user, userindex = -1;
 	Poll.cancelPossibleEdit();
 	$.each(Symcrypt.db, function (i, user) {
 		if (user.name === username) {
@@ -156,7 +191,7 @@ Symcrypt.addUser = function (user_input) {
 			var userindex = -1, olduser;
 			if (user_input.oldname) {
 				$.each(Symcrypt.db, function (i, u) {
-					if (escapeHtml(user_input.oldname) === u.name) {
+					if (user_input.oldname === u.name) {
 						userindex = i;
 					}
 				});
@@ -166,8 +201,6 @@ Symcrypt.addUser = function (user_input) {
 			if (userindex === -1) {
 				userindex = $.inArray("", Symcrypt.db) === -1 ? Symcrypt.db.length : $.inArray("", Symcrypt.db);
 			}
-			user_input.name = escapeHtml(user_input.name);
-
 
 
 			Poll.store("Symcrypt", Symcrypt.pollPW + "_" + userindex, sjcl.encrypt(Symcrypt.password, JSON.stringify(user_input)), {
